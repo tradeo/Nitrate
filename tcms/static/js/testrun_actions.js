@@ -152,7 +152,8 @@ Nitrate.TestRuns.Details.on_load = function() {
       });
       c_container.find('.js-add-caserun-bug').bind('click', function(){
         var params = jQ(this).data('params');
-        addCaseRunBug(params[0], c[0], c_container[0], params[1], params[2]);
+        delete params[3]['']
+        addCaseRunBug(params[0], c[0], c_container[0], params[1], params[2], params[3]);
       });
       c_container.find('.js-remove-caserun-bug').bind('click', function(){
         var params = jQ(this).data('params');
@@ -656,7 +657,6 @@ function constructCaseRunZone(container, title_container, case_id) {
  * Dialog to allow user to add sort of issue keys to case run(s).
  *
  * Here, issue key is a general to whatever the issue tracker system is.
- * Currently, two issue tracker systems get supported, Bugzilla and Jira.
  *
  * options:
  * @param extraFormHiddenData: used for providing extra data for specific AJAX request.
@@ -670,6 +670,7 @@ function AddIssueDialog(options) {
   if (this.onSubmit !== undefined && typeof this.onSubmit !== "function") {
     throw new Error("onSubmit should be a function object.");
   }
+  this.bugTrackers = options.bugTrackers
   this.extraFormHiddenData = options.extraFormHiddenData;
   if (this.extraFormHiddenData !== undefined && typeof this.extraFormHiddenData !== "object") {
     throw new Error("extraFormHiddenData sould be an object if present.");
@@ -691,26 +692,17 @@ AddIssueDialog.prototype.show = function () {
   }
 
   var template = Handlebars.compile(jQ("#add_issue_form_template").html());
-  var context = {'hiddenFields': hiddenPart};
+  var context = {'hiddenFields': hiddenPart, 'bugTrackers' : this.bugTrackers};
   jQ('#dialog').html(template(context))
     .find('.js-cancel-button').bind('click', function() {
       jQ('#dialog').hide();
     })
     .end().show();
 
-  this.previousVisibleIssueSystem = "bug-system-bugzilla";
   this.form = jQ("#add_issue_form")[0];
 
   // Used for following event callbacks to ref this dialog's instance
   var that = this;
-
-  // Switch bug system panel
-  jQ('#bug_system_id').change(function (e) {
-    var tabName = jQ('#bug_system_id option:selected').data('tab');
-    jQ('#add_issue_form').find('#' + that.previousVisibleIssueSystem).toggle();
-    jQ('#add_issue_form').find('#' + tabName).toggle();
-    that.previousVisibleIssueSystem = tabName;
-  });
 
   // Set custom callback functions
   if (this.onSubmit !== undefined) {
@@ -722,15 +714,7 @@ AddIssueDialog.prototype.show = function () {
 
 AddIssueDialog.prototype.get_data = function () {
   var form_data = Nitrate.Utils.formSerialize(this.form);
-
-  // have to ensure bug_id only refs to a string
-  if (form_data.bug_system_id == 1) {
-    form_data.bug_id = jQ('#bug-system-bugzilla').find('[name="bug_id"]').val();
-  } else if (form_data.bug_system_id == 2) {
-    form_data.bug_id = jQ('#bug-system-jira').find('[name="bug_id"]').val();
-  } else {
-    throw new Error('Unknown bug system ID');
-  }
+  form_data.bug_id = jQ('#bug-system').find('[name="bug_id"]').val();
 
   return form_data;
 };
@@ -738,9 +722,10 @@ AddIssueDialog.prototype.get_data = function () {
 //// end of AddIssueDialog definition /////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-function addCaseRunBug(run_id, title_container, container, case_id, case_run_id, callback) {
+function addCaseRunBug(run_id, title_container, container, case_id, case_run_id, bugTrackers, callback) {
   var dialog = new AddIssueDialog({
     'extraFormHiddenData': { 'case_run': case_run_id, 'case': case_id },
+    'bugTrackers': bugTrackers,
     'onSubmit': function (e, dialog) {
       e.stopPropagation();
       e.preventDefault();

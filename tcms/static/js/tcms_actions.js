@@ -1425,19 +1425,7 @@ function exportCase(url, form, table) {
 var printableCases = exportCase;
 
 function validateIssueID(bugSystemId, bugId) {
-  if (bugSystemId == 1) {
-    var result = /^\d{1,7}$/.test(bugId);
-    if (!result) {
-      window.alert(default_messages.alert.invalid_bug_id);
-    }
-    return result;
-  } else if (bugSystemId == 2) {
-    var result = /^[A-Z0-9]+-\d+$/.test(bugId);
-    if (!result) {
-      window.alert(default_messages.alert.invalid_jira_id);
-    }
-    return result;
-  }
+  return true
 }
 
 function getBugSystemId(bugId) {

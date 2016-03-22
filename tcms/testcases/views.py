@@ -30,7 +30,7 @@ from tcms.testcases import sqls
 from tcms.testcases.models import TestCase, TestCaseStatus, \
     TestCaseAttachment, TestCasePlan
 from tcms.management.models import Priority, TestTag
-from tcms.testcases.models import TestCaseBug
+from tcms.testcases.models import TestCaseBug, TestCaseBugSystem
 from tcms.testplans.models import TestPlan
 from tcms.testruns.models import TestCaseRun
 from tcms.testruns.models import TestCaseRunStatus
@@ -1022,6 +1022,7 @@ class TestCaseCaseRunDetailPanelView(TemplateView,
             'caserun_logs': caserun_logs,
             'test_case_run_status': caserun_status,
             'grouped_case_bugs': bugs,
+            'bug_trackers': TestCaseBugSystem.objects.all(),
         })
 
         return data

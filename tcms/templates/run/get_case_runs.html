@@ -156,20 +156,19 @@
 				{{/each}}
 			<div class="bug_type" id="id_bug_type">Issue Tracker</div>
 			<select name="bug_system_id" id="bug_system_id">
-				<option value="1" selected="selected" data-tab="bug-system-bugzilla">Bugzilla</option>
-				<option value="2" data-tab="bug-system-jira">JIRA</option>
+				{{#each bugTrackers}}
+					<option value="{{ @key }}">{{ this }}</option>
+				{{/each}}
 			</select>
 			</br>
-			<div id="bug-system-bugzilla" style="line-height:30px;">
+			<div id="bug-system" style="line-height:30px;">
 				<div class="bug_id">Bug ID</div>
 					<input type="text" name="bug_id">
 					</br>
+<!--
 					<input type="checkbox" name="bz_external_track" value="bz_external_track">&nbsp;
 					<span class="use_bz_external_track">Check to add Test Cases to BZ</span>
-			</div>
-			<div id="bug-system-jira" style="display:none;line-height:30px;">
-				<div class="bug_id">Issue Key</div>
-				<input type="text" name="bug_id">
+-->
 			</div>
 			</br></br>
 			<div>
