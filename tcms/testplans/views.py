@@ -16,7 +16,7 @@ from django.shortcuts import get_object_or_404, render_to_response
 from uuslug import slugify
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.utils.simplejson import dumps as json_dumps
+import json
 
 from tcms.core.views import Prompt
 from tcms.core.responses import HttpJSONResponse
@@ -486,7 +486,7 @@ def ajax_response(request, querySet, columnIndexNameMap,
                 {'sEcho': sEcho, 'iTotalRecords': iTotalRecords,
                  'iTotalDisplayRecords': iTotalDisplayRecords,
                  'sColumns': sColumns})
-            response = HttpJSONResponse(json_dumps(response_dict))
+            response = HttpJSONResponse(json.dumps(response_dict))
             # prevent from caching datatables result
             # add_never_cache_headers(response)
 
@@ -1048,7 +1048,7 @@ def cases(request, plan_id):
                 ajax_response['rc'] = 1
                 ajax_response[
                     'reponse'] = 'At least one case is required to delete.'
-                return HttpResponse(json_dumps(ajax_response))
+                return HttpResponse(json.dumps(ajax_response))
 
             tcs = get_selected_testcases(request)
 
@@ -1069,7 +1069,7 @@ def cases(request, plan_id):
 
                 tp.delete_case(case=tc)
 
-            return HttpResponse(json_dumps(ajax_response))
+            return HttpResponse(json.dumps(ajax_response))
 
         def order_cases(self):
             '''
@@ -1083,7 +1083,7 @@ def cases(request, plan_id):
                 ajax_response['rc'] = 1
                 ajax_response[
                     'reponse'] = 'At least one case is required to re-order.'
-                return HttpResponse(json_dumps(ajax_response))
+                return HttpResponse(json.dumps(ajax_response))
 
             tc_pks = request.REQUEST.getlist('case')
             tcs = TestCase.objects.filter(pk__in=tc_pks)
@@ -1093,7 +1093,7 @@ def cases(request, plan_id):
                 TestCasePlan.objects.filter(plan=tp, case=tc).update(
                     sortkey=new_sort_key)
 
-            return HttpResponse(json_dumps(ajax_response))
+            return HttpResponse(json.dumps(ajax_response))
 
         def import_cases(self):
 
@@ -1184,7 +1184,7 @@ def cases(request, plan_id):
         if request.REQUEST.get('format') == 'json':
             ajax_response['rc'] = 1
             ajax_response['response'] = 'Unrecognizable actions'
-            return HttpResponse(json_dumps(ajax_response))
+            return HttpResponse(json.dumps(ajax_response))
 
         return HttpResponse(Prompt.render(
             request=request,
@@ -1233,7 +1233,7 @@ def component(request, template_name='plan/get_component.html'):
                     'testplans.add_testplancomponent'):
                 if self.is_ajax():
                     return HttpResponse(
-                        json_dumps(self.__msgs__['permission_denied']))
+                        json.dumps(self.__msgs__['permission_denied']))
 
                 return self.render(
                     message=self.__msgs__['permission_denied']['response'])
@@ -1272,7 +1272,7 @@ def component(request, template_name='plan/get_component.html'):
                     'testplans.delete_testplancomponent'):
                 if self.request.is_ajax():
                     return HttpResponse(
-                        json_dumps(self.__msgs__['permission_denied']))
+                        json.dumps(self.__msgs__['permission_denied']))
 
                 return self.render(
                     message=self.__msgs__['permission_denied']['response'])
@@ -1290,7 +1290,7 @@ def component(request, template_name='plan/get_component.html'):
 
         def render(self, message=None):
             if request.REQUEST.get('multiple'):
-                return HttpResponse(json_dumps(ajax_response))
+                return HttpResponse(json.dumps(ajax_response))
 
             if request.REQUEST.get('type'):
                 from django.core import serializers

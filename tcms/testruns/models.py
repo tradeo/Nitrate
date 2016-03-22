@@ -5,7 +5,7 @@ from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import post_save, post_delete, pre_save
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes import fields
 from django.conf import settings
 
 from tcms.testcases.models import TestCaseBug, TestCaseText, NoneText
@@ -32,7 +32,7 @@ class TestRun(TCMSActionModel):
         'completed_case_run_percent')
 
     run_id = models.AutoField(primary_key=True)
-    errata_id = models.IntegerField(max_length=11, null=True, blank=True)
+    errata_id = models.IntegerField(null=True, blank=True)
 
     product_version = models.ForeignKey('management.Version',
                                         related_name='version_run')
@@ -42,8 +42,7 @@ class TestRun(TCMSActionModel):
     stop_date = models.DateTimeField(null=True, blank=True, db_index=True)
     summary = models.TextField()
     notes = models.TextField(blank=True)
-    estimated_time = DurationField(max_length=11,
-                                   default=0)
+    estimated_time = DurationField(default=0)
 
     plan = models.ForeignKey('testplans.TestPlan', related_name='run')
     environment_id = models.IntegerField(default=0)
@@ -580,7 +579,7 @@ class TestCaseRun(TCMSActionModel):
     build = models.ForeignKey('management.TestBuild')
     environment_id = models.IntegerField(default=0)
 
-    links = generic.GenericRelation(LinkReference, object_id_field='object_pk')
+    links = fields.GenericRelation(LinkReference, object_id_field='object_pk')
 
     class Meta:
         db_table = u'test_case_runs'
@@ -694,7 +693,7 @@ class TestRunTag(models.Model):
 
 
 class TestRunCC(models.Model):
-    run = models.ForeignKey(TestRun, primary_key=True)
+    run = models.OneToOneField(TestRun)
     user = models.ForeignKey('auth.User', db_column='who')
 
     class Meta:

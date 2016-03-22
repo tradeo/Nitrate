@@ -4,7 +4,7 @@ __all__ = ('add', 'get', 'remove', )
 
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.http import require_GET, require_POST
-from django.utils import simplejson as json
+import json
 
 from forms import AddLinkReferenceForm, BasicValidationForm
 from models import create_link, LinkReference

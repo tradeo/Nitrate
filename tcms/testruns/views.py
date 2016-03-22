@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.comments.models import Comment
+from django_comments.models import Comment
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -19,7 +19,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.utils import simplejson
+import json
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 from django.views.generic.base import View
@@ -571,7 +571,7 @@ def ajax_response(request, querySet, columnIndexNameMap,
                 {'sEcho': sEcho, 'iTotalRecords': iTotalRecords,
                  'iTotalDisplayRecords': iTotalDisplayRecords,
                  'sColumns': sColumns})
-            response = HttpJSONResponse(simplejson.dumps(response_dict))
+            response = HttpJSONResponse(json.dumps(response_dict))
             #    prevent from caching datatables result
             #    add_never_cache_headers(response)
     return response
@@ -922,7 +922,7 @@ def bug(request, case_run_id, template_name='run/execute_case_run.html'):
         def ajax_response(self, response=None):
             if not response:
                 response = self.default_ajax_response
-            return HttpJSONResponse(simplejson.dumps(response))
+            return HttpJSONResponse(json.dumps(response))
 
         def file(self):
             rh_bz = Bugzilla(settings.BUGZILLA_URL)
@@ -1475,7 +1475,7 @@ def env_value(request):
             chk_perm = self.has_no_perm('add')
 
             if chk_perm:
-                return HttpResponse(simplejson.dumps(chk_perm))
+                return HttpResponse(json.dumps(chk_perm))
 
             try:
                 value = self.get_env_value(request.REQUEST.get(
@@ -1499,13 +1499,13 @@ def env_value(request):
                                           context_instance=RequestContext(
                                               request))
             self.ajax_response.update({"fragment": fragment.content})
-            return HttpResponse(simplejson.dumps(self.ajax_response))
+            return HttpResponse(json.dumps(self.ajax_response))
 
         # FIXME Deprecated
         def add_mulitple(self):
             chk_perm = self.has_no_perm('add')
             if chk_perm:
-                return HttpResponse(simplejson.dumps(chk_perm))
+                return HttpResponse(json.dumps(chk_perm))
 
             # Write the values into tcms_env_run_value_map table
             for key, value in self.request.REQUEST.items():
@@ -1532,12 +1532,12 @@ def env_value(request):
                                 run=tr,
                                 value_id=value_id,
                             )
-            return HttpResponse(simplejson.dumps(self.ajax_response))
+            return HttpResponse(json.dumps(self.ajax_response))
 
         def remove(self):
             chk_perm = self.has_no_perm('delete')
             if chk_perm:
-                return HttpResponse(simplejson.dumps(chk_perm))
+                return HttpResponse(json.dumps(chk_perm))
 
             try:
                 for tr in self.trs:
@@ -1547,12 +1547,12 @@ def env_value(request):
             except:
                 pass
 
-            return HttpResponse(simplejson.dumps(self.ajax_response))
+            return HttpResponse(json.dumps(self.ajax_response))
 
         def change(self):
             chk_perm = self.has_no_perm('change')
             if chk_perm:
-                return HttpResponse(simplejson.dumps(chk_perm))
+                return HttpResponse(json.dumps(chk_perm))
 
             try:
                 for tr in self.trs:
@@ -1566,13 +1566,13 @@ def env_value(request):
             except:
                 raise
 
-            return HttpResponse(simplejson.dumps(self.ajax_response))
+            return HttpResponse(json.dumps(self.ajax_response))
 
     run_env_actions = RunEnvActions(request, trs)
 
     if not request.REQUEST.get('a') in run_env_actions.__all__:
         ajax_response = {'rc': 1, 'response': 'Unrecognizable actions'}
-        return HttpResponse(simplejson.dumps(ajax_response))
+        return HttpResponse(json.dumps(ajax_response))
 
     func = getattr(run_env_actions, request.REQUEST['a'])
 
@@ -1648,4 +1648,4 @@ def caserun_of_the_status_in_percentage(request, run_id):
     else:
         run = get_object_or_404(TestRun, pk=run_id)
         percent = getattr(run, status)
-        return HttpResponse(simplejson.dumps({'percent': percent}))
+        return HttpResponse(json.dumps({'percent': percent}))
