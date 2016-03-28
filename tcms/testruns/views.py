@@ -843,16 +843,6 @@ class TestRunReportView(TemplateView, TestCaseRunDataMixin):
             user_comments = comments.get(case_run.pk, [])
             case_run.user_comments = user_comments
 
-        jira_bug_ids = [bug_id for bug_id, bug_url in bug_ids if '-' in bug_id]
-        bugzilla_bug_ids = [bug_id for bug_id, bug_url in bug_ids if
-                            '-' not in bug_id]
-        jira_url = settings.JIRA_URL + \
-            'issues/?jql=issueKey%%20in%%20(%s)' % \
-            '%2C%20'.join(jira_bug_ids)
-        bugzilla_url = settings.BUGZILLA_URL + \
-            'buglist.cgi?bugidtype=include&bug_id=%s' % \
-            ','.join(bugzilla_bug_ids)
-
         context = super(TestRunReportView, self).get_context_data(**kwargs)
         context.update({
             'test_run': run,
@@ -861,8 +851,6 @@ class TestRunReportView(TemplateView, TestCaseRunDataMixin):
             'test_case_run_bugs': bug_ids,
             'mode_stats': mode_stats,
             'summary_stats': summary_stats,
-            'jira_url': jira_url,
-            'bugzilla_url': bugzilla_url
         })
 
         return context
